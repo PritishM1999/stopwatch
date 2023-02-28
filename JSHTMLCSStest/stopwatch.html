@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="stopwatch.css">
+</head>
+<body>
+    <div class="stopwatch">
+        <div class="display">00:00:00:000</div>
+        <br/>
+        <br/>
+        <button id="start">Start</button>
+        <br/>
+        <button id="pause">Pause</button>
+        <br/>
+        <button id="reset">Reset</button>
+        <br/>
+        <button id="cast">Cast</button>
+        <br/>
+        <div class="casts">None</div>
+    </div>
+
+    <script>
+        let startTime;
+        let casts = [];
+        let intervalTimer;
+        let lapsed = 0;
+
+        const timeFormat = (time) => {
+            let mili_sec = time % 1000;
+            time = (time-mili_sec) / 1000;
+            let seconds = time % 60;
+            time = (time-seconds) / 60;
+            let minuits = time % 60;
+            let hours = (time-minuits) / 60;
+            return `${hours.toString().padStart(2, '0')} : ${minuits.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')} : ${mili_sec.toString().padStart(3, '0')}`
+        }
+
+        const displayUpdate = () => {
+            const display = document.querySelector('.display');
+            display.textContent = timeFormat(lapsed);
+        };
+
+        const timerStart = (event) => {
+            startTime = Date.now() - lapsed;
+            intervalTimer = setInterval(() => {
+                lapsed = Date.now() - startTime;
+                displayUpdate();
+            }, 1)
+            event.stopPropagation();
+        }
+
+        const timerPause = (event) => {
+            clearInterval(intervalTimer);
+            event.stopPropagation();
+        };
+
+        const timerReset = (event) => {
+            clearInterval(intervalTimer);
+            lapsed = 0;
+            displayUpdate();
+            casts = [];
+            let castDisplay = document.querySelector('.casts');
+            castDisplay.textContent = 'None';
+        };
+
+        const timerCast = (event) => {
+            casts.push(lapsed);
+            let castIndex = casts.length;
+            let castDisplay = document.querySelector('.casts');
+            castDisplay.textContent = `CAST ${castIndex} - ${timeFormat(lapsed)}`;
+        }
+
+        let startBtn = document.querySelector('#start');
+        startBtn.addEventListener('click', timerStart);
+
+        let pauseBtn = document.querySelector('#pause');
+        pauseBtn.addEventListener('click', timerPause);
+
+        let resetBtn = document.querySelector('#reset');
+        resetBtn.addEventListener('click', timerReset);
+
+        let castBtn = document.querySelector('#cast');
+        castBtn.addEventListener('click', timerCast);
+    </script>
+</body>
+</html>
